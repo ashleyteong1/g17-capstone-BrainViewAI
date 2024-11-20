@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BrainView AI - Login</title>
-  <link rel="stylesheet" href="loginstyles.css">
+  <link rel="stylesheet" href="/static/css/loginStyles.css">
 </head>
 <body>
   <div class="container">
     <div class="card">
       <div class="logo">
-        <img src="logo.png" alt="BrainView AI Logo">
+        <img src="/assets/logo.png" alt="BrainView AI Logo">
       </div>
       <h2>BrainView AI</h2>
       <form action="/login" method="POST">
@@ -25,9 +25,9 @@
               <button type="button" class="toggle-password" aria-label="Toggle Password Visibility">👁️</button>
             </div>
           </div>
-        <button type="submit" class="btn-primary">LOGIN</button>
+        <button type="submit" class="btn-primary" href="main.html">LOGIN</button>
         <div class="links">
-          <a href="/forgot-password">Forgot Your Password?</a>
+          <a href="/forgotPassword.html">Forgot Your Password?</a>
           <a href="/newAcc.html">Create Account</a>
         </div>
       </form>

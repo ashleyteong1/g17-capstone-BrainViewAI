@@ -1,0 +1,76 @@
+@import url(mainStyles.css);
+
+/* Search and Toolbar */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+  }
+  
+  .search-bar {
+    width: 60%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .patient-table {
+    margin-top: 20px;
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  th {
+    background-color: #f0f4ff;
+    color: #555;
+    font-size: 14px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  tr:hover {
+    background-color: #f0f4ff;
+  }
+  
+  td button {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-danger {
+    background-color: #ff4d4d;
+    color: white;
+  }
+  
+  .btn-secondary {
+    background-color: #f0f4ff;
+    color: #008cff;
+  }
+  
+  .btn-danger:hover {
+    background-color: #ff3333;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #dbe9ff;
+  }
