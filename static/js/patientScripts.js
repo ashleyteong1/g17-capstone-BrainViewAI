@@ -4,13 +4,33 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "login.html";
     return;
   }
-
+  const userDropdownBtn = document.getElementById("user-dropdown-btn");
+  const userDropdownMenu = document.getElementById("user-dropdown-menu");
+  const logoutLink = document.getElementById("logout-link");
   const addPatientBtn = document.getElementById("add-patient-btn");
   const searchBar = document.getElementById("search-bar");
   const patientList = document.getElementById("patient-list");
   const addPatientModal = document.getElementById("add-patient-modal");
   const closeModalBtn = document.getElementById("close-modal-btn");
   const addPatientForm = document.getElementById("add-patient-form");
+
+  // Toggle dropdown menu visibility
+  userDropdownBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevent the click from propagating to the window
+    userDropdownMenu.classList.toggle("show");
+  });
+
+  // Close dropdown when clicking outside
+  window.addEventListener("click", () => {
+    userDropdownMenu.classList.remove("show");
+  });
+
+  // Logout functionality
+  logoutLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+  });
 
   let patients = JSON.parse(localStorage.getItem("patients")) || [];
   let nextPatientId = parseInt(localStorage.getItem("nextPatientId")) || 1;

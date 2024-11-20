@@ -5,9 +5,6 @@ h1 {
   text-align: center;
 }
 
-footer{
-  bottom: 0%;
-}
 
 /* Toolbar */
 .toolbar {
@@ -29,7 +26,6 @@ footer{
   max-height: calc(100vh - 300px);
   overflow-y: auto;  
   margin-bottom: 50px;
-  border: #555;
 }
 
 table {
