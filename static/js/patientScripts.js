@@ -1,104 +1,84 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Check if user session exists
   const user = JSON.parse(localStorage.getItem("user"));
-
-  // If no session, prevent access and clear history
+  
+  // If no session, redirect to login page
   if (!user) {
-    document.body.innerHTML = '<h1>You are not authorized to view this page.</h1>';
-    alert("Unauthorized access! You will be redirected to the login page.");
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 2000);
+    window.location.href = "login.html";
     return;
   }
 
-  // Get elements from DOM
+  // Get DOM elements
   const addPatientBtn = document.getElementById("add-patient-btn");
   const searchBar = document.getElementById("search-bar");
   const patientList = document.getElementById("patient-list");
 
-  // Get popup elements
-  const popupContainer = document.getElementById("popup-container");
-  const closePopupBtn = document.getElementById("close-popup");
-  const addPatientForm = document.getElementById("add-patient-form");
+  // Initialize the patients array from localStorage, or start with an empty array
+  let patients = JSON.parse(localStorage.getItem("patients")) || [];
+  let nextPatientId = localStorage.getItem("nextPatientId") || 1; // Start from 1 or fetch from localStorage
 
-  // Function to generate new patient ID (automatically)
-  const generateNewPatientId = () => {
-    // Find all patient IDs in the table
-    const patientRows = patientList.querySelectorAll("tr");
-    let highestId = 0;
+  // Function to render the patient list (appends data without clearing hardcoded rows)
+  const renderPatients = () => {
+    if (!patientList) return;
 
-    // Loop through each row and extract the numeric part of the patient ID (e.g., "PT001")
-    patientRows.forEach((row) => {
-      const patientId = row.cells[0]?.textContent; // Assuming ID is in the first cell
-      if (patientId && patientId.startsWith("PT")) {
-        const numericPart = parseInt(patientId.substring(2)); // Extract the number part
-        if (numericPart > highestId) {
-          highestId = numericPart; // Update the highest ID
-        }
-      }
+    // Clear the patient list before re-rendering (to avoid duplicates)
+    patientList.innerHTML = '';
+
+    // Render all the patients from the stored data, appending to the existing rows
+    patients.forEach(patient => {
+      const newRow = `
+        <tr>
+          <td>${patient.id}</td>
+          <td>${patient.name}</td>
+          <td>${patient.age}</td>
+          <td>${patient.condition}</td>
+          <td>${patient.lastVisit}</td>
+          <td class="actions">
+            <button class="btn-secondary" onclick="viewCTScan('${patient.id}')">View CT Scan</button>
+            <button class="btn-secondary" onclick="viewPatient('${patient.id}')">View</button>
+            <button class="btn-danger" data-id="${patient.id}">Delete</button>
+          </td>
+        </tr>
+      `;
+      patientList.innerHTML += newRow;
     });
 
-    // Increment the highest ID by 1 to generate the new patient ID
-    return `PT${(highestId + 1).toString().padStart(3, "0")}`;
+    // Attach delete event listeners dynamically
+    const deleteButtons = document.querySelectorAll('.btn-danger');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const patientId = e.target.getAttribute('data-id');
+        deletePatient(patientId);
+      });
+    });
   };
 
-  // Function to add a new patient to the table
-  const addNewPatient = (patient) => {
-    const newRow = `
-      <tr>
-        <td>${patient.id}</td>
-        <td>${patient.name}</td>
-        <td>${patient.age}</td>
-        <td>${patient.condition}</td>
-        <td>${patient.lastVisit}</td>
-        <td>
-          <button class="btn-secondary view-ct-scan-btn">View CT Scan</button>
-        </td>
-        <td>
-          <button class="btn-secondary view-btn">View</button>
-          <button class="btn-danger delete-btn">Delete</button>
-        </td>
-      </tr>
-    `;
-    patientList.innerHTML += newRow;
-  };
-
-  // Open the popup when the "Add New Patient" button is clicked
+  // Event to add a new patient
   addPatientBtn.addEventListener("click", () => {
-    popupContainer.style.display = "flex";  // Show the popup
-  });
-
-  // Close the popup when the "Cancel" button is clicked
-  closePopupBtn.addEventListener("click", () => {
-    popupContainer.style.display = "none";  // Hide the popup
-  });
-
-  // Handle the form submission for adding a new patient
-  addPatientForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    // Get the patient details from the form inputs
     const newPatient = {
-      id: generateNewPatientId(),  // Automatically generate patient ID
-      name: document.getElementById("patient-name").value,
-      age: document.getElementById("patient-age").value,
-      condition: document.getElementById("patient-condition").value,
-      lastVisit: new Date().toISOString().split("T")[0]
+      id: `PT${nextPatientId}`,  // Use the current next ID
+      name: "New Patient",
+      age: 50,
+      condition: "New Condition",
+      lastVisit: new Date().toISOString().split("T")[0],  // Current date
     };
 
-    // Add the new patient to the table
-    addNewPatient(newPatient);
+    // Add the new patient to the array
+    patients.push(newPatient);
 
-    // Close the popup after adding the patient
-    popupContainer.style.display = "none";
+    // Increment and update the next patient ID
+    nextPatientId++;
 
-    // Optionally clear the form fields after submission
-    addPatientForm.reset();
+    // Save the updated patient list and nextPatientId to localStorage
+    localStorage.setItem("patients", JSON.stringify(patients));
+    localStorage.setItem("nextPatientId", nextPatientId);
+
+    // Re-render the patient list
+    renderPatients();
   });
 
-  // Search functionality for filtering patients in the table
-  searchBar.addEventListener("input", () => {
+  // Search functionality
+  searchBar?.addEventListener("input", () => {
     const query = searchBar.value.toLowerCase();
     const rows = patientList.querySelectorAll("tr");
 
@@ -111,34 +91,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // View CT Scan button functionality (open modal or display CT scan)
-  patientList.addEventListener("click", (e) => {
-    if (e.target.classList.contains("view-ct-scan-btn")) {
-      // Implement actual CT Scan viewing logic (e.g., open a modal or display an image)
-      alert("Displaying CT Scan... (implement actual functionality)");
-    }
-  });
-
-  // Delete Patient functionality (removes patient from the table)
-  patientList.addEventListener("click", (e) => {
-    if (e.target.classList.contains("delete-btn")) {
-      const row = e.target.closest("tr");
-      row.remove();  // Removes the patient row from the table
-    }
-  });
-
-  // Dropdown menu toggle logic for user actions
+  // Dropdown menu toggle logic for patientScripts.html
   const dropdownButton = document.getElementById("user-dropdown-btn");
   const dropdownMenu = document.getElementById("user-dropdown-menu");
 
-  dropdownButton?.addEventListener("click", () => {
-    dropdownMenu.classList.toggle("show");
-  });
+  if (dropdownButton && dropdownMenu) {
+    dropdownButton.addEventListener("click", () => {
+      dropdownMenu.classList.toggle("show");
+    });
+  }
 
-  // Logout functionality (clears session and redirects to login page)
+  // Logout functionality
   const logoutLink = document.getElementById("logout-link");
   logoutLink?.addEventListener("click", () => {
+    // Clear user session from localStorage
     localStorage.removeItem("user");
+
+    // Redirect to login page
     window.location.href = "login.html";
   });
+
+  // Function to view patient details (could be expanded with a modal or a new page)
+  window.viewPatient = (id) => {
+    // Placeholder for view patient functionality (e.g., open a modal or navigate to another page)
+    alert(`Viewing patient with ID: ${id}`);
+  };
+
+  // Function to view CT scan with a popup alert
+  window.viewCTScan = (id) => {
+    // For demo purposes, show an alert with patient ID for the CT scan view
+    alert(`Viewing CT scan for patient with ID: ${id}`);
+  };
+
+  // Function to delete a patient
+  window.deletePatient = (id) => {
+    // Remove the patient from the array
+    patients = patients.filter(patient => patient.id !== id);
+
+    // Save the updated list back to localStorage
+    localStorage.setItem("patients", JSON.stringify(patients));
+
+    // Re-render the patient list
+    renderPatients();
+  };
+
+  // Render the patient list on page load (appending after hardcoded rows)
+  renderPatients();
 });

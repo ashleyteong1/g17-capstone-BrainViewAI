@@ -9,7 +9,7 @@ footer{
   bottom: 0%;
 }
 
-/* Toolbar (Search and Add New Patient) */
+/* Toolbar */
 .toolbar {
   display: flex;
   justify-content: center;
@@ -26,9 +26,10 @@ footer{
 
 /* Patient Table */
 .patient-table {
-  max-height: calc(100vh - 300px); /* Subtract space for header and footer */
-  overflow-y: auto;   /* Enables vertical scrolling */
-  margin-bottom: 50px; /* Adds space for the footer if needed */
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;  
+  margin-bottom: 50px;
+  border: #555;
 }
 
 table {
@@ -95,7 +96,7 @@ td button {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+  background-color: rgba(0, 0, 0, 0.5); 
   justify-content: center;
   align-items: center;
   z-index: 1000;
