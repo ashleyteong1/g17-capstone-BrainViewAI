@@ -24,8 +24,9 @@
         <span class="user-avatar">JS</span>
         <span class="user-name">Dr. Jhone Smith</span>
       </button>
+      <!-- Dropdown Menu -->
       <div class="dropdown-menu" id="user-dropdown-menu">
-        <a href="#logout">Log Out</a>
+        <a href="#logout" id="logout-link">Log Out</a>
       </div>
     </div>
   </header>
@@ -35,11 +36,16 @@
     <section class="ct-scan-dashboard">
       <h1>CT Scan Dashboard</h1>
       <div class="upload-analyze">
-        <button class="btn-primary">Upload CT Scan</button>
-        <button class="btn-secondary">Analyze</button>
+        <button class="btn-primary" id="upload-btn">Upload CT Scan</button>
+        <input type="file" id="upload-input" style="display: none;" accept="image/*">
+        <button class="btn-secondary" id="analyze-btn" disabled>Analyze</button>
       </div>
-      <div class="image-placeholder">
+      <div class="image-placeholder" id="image-preview">
         <p>No Image Uploaded</p>
+      </div>
+      <div id="analyze-animation" style="display: none;" class="analyzing-container">
+        <div class="spinner"></div> <!-- Add a spinner for loading animation -->
+        <p>Analyzing CT Scan...</p>
       </div>
     </section>
   </main>
@@ -48,6 +54,169 @@
   <footer class="footer">
     <p>© 2024 BrainView AI. All Rights Reserved</p>
   </footer>
-  <script src="scripts.js"></script>
+  
+  <script src="/js/login.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Check if user session exists
+      const user = JSON.parse(localStorage.getItem("user"));
+    
+      if (!user) {
+        // Redirect to login if no session
+        window.location.href = "login.html";
+      } else {
+        // Extract initials (ignore "Dr." if present)
+        const fullName = user.name;
+        const nameParts = fullName.split(" ");
+        const initials = nameParts.filter(part => part !== "Dr.").map(part => part[0].toUpperCase()).join("");
+    
+        // Set the initials in the user avatar and name
+        document.querySelector(".user-name").textContent = fullName; // Show full name
+        document.querySelector(".user-avatar").textContent = initials; // Show initials
+      }
+
+      // Dropdown menu toggle
+      const dropdownBtn = document.getElementById("user-dropdown-btn");
+      const dropdownMenu = document.getElementById("user-dropdown-menu");
+    
+      // Toggle the dropdown menu visibility when user clicks on avatar or name
+      dropdownBtn.addEventListener("click", (e) => {
+        e.stopPropagation();  // Prevent the event from bubbling up to document
+        dropdownMenu.classList.toggle("show");
+      });
+    
+      // Close dropdown menu when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!dropdownBtn.contains(e.target)) {
+          dropdownMenu.classList.remove("show");
+        }
+      });
+
+      // Logout functionality
+      document.getElementById("logout-link").addEventListener("click", () => {
+        localStorage.removeItem("user"); // Clear session
+        window.location.href = "login.html"; // Redirect to login
+      });
+
+      // Upload CT Scan functionality
+      const uploadBtn = document.getElementById("upload-btn");
+      const uploadInput = document.getElementById("upload-input");
+      const analyzeBtn = document.getElementById("analyze-btn");
+      const imagePreview = document.getElementById("image-preview");
+    
+      // Trigger file input when upload button is clicked
+      uploadBtn.addEventListener("click", () => {
+        uploadInput.click();
+      });
+    
+      // Handle image preview once a file is selected
+      uploadInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+    
+          reader.onload = function(event) {
+            imagePreview.innerHTML = `<img src="${event.target.result}" alt="Uploaded CT Scan" class="uploaded-image">`;
+            analyzeBtn.disabled = false; // Enable analyze button after upload
+          };
+    
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Analyze button functionality
+      analyzeBtn.addEventListener("click", () => {
+        // Show analyzing animation
+        document.getElementById("analyze-animation").style.display = "flex";
+        analyzeBtn.disabled = true;
+
+        // Simulate analysis with a timeout (e.g., 3 seconds)
+        setTimeout(() => {
+          // Hide analyzing animation
+          document.getElementById("analyze-animation").style.display = "none";
+          
+          // Show popup message and redirect after analysis
+          const analysisResult = "CT Scan analysis complete! Results show that there is a suspected fracture in the temporal lobe.";
+          
+          const resultPopup = document.createElement("div");
+          resultPopup.classList.add("popup");
+          resultPopup.innerHTML = `
+            <p>${analysisResult}</p>
+            <button id="popup-close-btn">Close</button>
+          `;
+          document.body.appendChild(resultPopup);
+          
+          // Close button for the popup
+          document.getElementById("popup-close-btn").addEventListener("click", () => {
+            resultPopup.remove();
+            window.location.href = "patientManager.html"; // Redirect to Patient Manager page
+          });
+        }, 3000); // Simulate 3 seconds of analysis time
+      });
+    });
+  </script>
 </body>
 </html>
+
+<style>
+  /* Styling for image preview */
+  .uploaded-image {
+    max-width: 100%;
+    height: 300px;
+    margin-top: 20px;
+  }
+
+  /* Flexbox layout for analyzing animation */
+  .analyzing-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20px;
+  }
+
+  .analyzing-container p {
+    margin-left: 10px; /* Space between the text and spinner */
+  }
+
+  /* Spinner for analyzing animation */
+  .spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Popup styling */
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: center;
+  }
+
+  .popup button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .popup button:hover {
+    background-color: #2980b9;
+  }
+</style>

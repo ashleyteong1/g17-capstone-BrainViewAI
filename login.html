@@ -13,19 +13,19 @@
         <img src="/assets/logo.png" alt="BrainView AI Logo">
       </div>
       <h2>BrainView AI</h2>
-      <form action="/login" method="POST">
+      <form id="login-form">
         <div class="form-group">
           <label for="user-id">User ID</label>
           <input type="text" id="user-id" name="user-id" placeholder="Enter your User ID" required>
         </div>
         <div class="form-group">
-            <label for="password">Your Password</label>
-            <div class="password-container">
-              <input type="password" id="password" name="password" placeholder="Enter your Password" required>
-              <button type="button" class="toggle-password" aria-label="Toggle Password Visibility">👁️</button>
-            </div>
+          <label for="password">Your Password</label>
+          <div class="password-container">
+            <input type="password" id="password" name="password" placeholder="Enter your Password" required>
+            <button type="button" class="toggle-password">👁️</button>
           </div>
-        <button type="submit" class="btn-primary" href="main.html">LOGIN</button>
+        </div>
+        <button type="submit" class="btn-primary">LOGIN</button>
         <div class="links">
           <a href="/forgotPassword.html">Forgot Your Password?</a>
           <a href="/newAcc.html">Create Account</a>
@@ -33,5 +33,6 @@
       </form>
     </div>
   </div>
+  <script src="static/js/login.js"></script>
 </body>
 </html>
