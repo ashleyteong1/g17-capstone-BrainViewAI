@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BrainView AI - Dashboard</title>
-  <link rel="stylesheet" href="/static/css/mainStyles.css">
+  <link rel="stylesheet" href="/g17-capstone-BrainViewAI/static/css/mainStyles.css">
 </head>
 <body>
   <!-- Top Navigation Bar -->
   <header class="navbar">
     <div class="logo">
-      <img src="/assets/logo.png" alt="BrainView AI Logo">
+      <img src="/g17-capstone-BrainViewAI/assets/logo.png" alt="BrainView AI Logo">
       <span>BrainView AI</span>
     </div>
     <nav class="nav-links">
@@ -55,25 +55,42 @@
     <p>© 2024 BrainView AI. All Rights Reserved</p>
   </footer>
   
-  <script src="/js/login.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Check if user session exists
-      const user = JSON.parse(localStorage.getItem("user"));
-    
-      if (!user) {
-        // Redirect to login if no session
-        window.location.href = "login.html";
-      } else {
-        // Extract initials (ignore "Dr." if present)
-        const fullName = user.name;
-        const nameParts = fullName.split(" ");
-        const initials = nameParts.filter(part => part !== "Dr.").map(part => part[0].toUpperCase()).join("");
-    
-        // Set the initials in the user avatar and name
-        document.querySelector(".user-name").textContent = fullName; // Show full name
-        document.querySelector(".user-avatar").textContent = initials; // Show initials
-      }
+      // Check authentication using session
+      const checkAuth = async () => {
+        try {
+          const response = await fetch('/g17-capstone-BrainViewAI/check-auth.php');
+          const data = await response.json();
+          
+          if (!data.authenticated) {
+            window.location.href = "login.html";
+          } else {
+            // Update UI with user info
+            const userId = data.user_id; // Get the user_id from session
+            const nameParts = userId.split(" "); // Split in case it's a full name
+            const initials = nameParts.map(part => part[0].toUpperCase()).join("");
+            
+            document.querySelector(".user-name").textContent = userId; // Show user_id instead of name
+            document.querySelector(".user-avatar").textContent = initials;
+          }
+        } catch (error) {
+          console.error("Error checking authentication:", error);
+          window.location.href = "login.html";
+        }
+      };
+
+      checkAuth();
+
+      // Update logout functionality
+      document.getElementById("logout-link").addEventListener("click", async () => {
+        try {
+          await fetch('/g17-capstone-BrainViewAI/logout.php');
+          window.location.href = "login.html";
+        } catch (error) {
+          console.error("Error logging out:", error);
+        }
+      });
 
       // Dropdown menu toggle
       const dropdownBtn = document.getElementById("user-dropdown-btn");
@@ -92,35 +109,57 @@
         }
       });
 
-      // Logout functionality
-      document.getElementById("logout-link").addEventListener("click", () => {
-        localStorage.removeItem("user"); // Clear session
-        window.location.href = "login.html"; // Redirect to login
-      });
-
       // Upload CT Scan functionality
       const uploadBtn = document.getElementById("upload-btn");
       const uploadInput = document.getElementById("upload-input");
       const analyzeBtn = document.getElementById("analyze-btn");
       const imagePreview = document.getElementById("image-preview");
-    
-      // Trigger file input when upload button is clicked
+
+      // Processing INPUT
       uploadBtn.addEventListener("click", () => {
-        uploadInput.click();
+        uploadInput.click(); 
       });
     
-      // Handle image preview once a file is selected
-      uploadInput.addEventListener("change", (e) => {
+      // Handle file upload
+      uploadInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (file) {
+          // Show loading state
+          uploadBtn.disabled = true;
+          uploadBtn.textContent = "Uploading...";
+          
+          // Show preview
           const reader = new FileReader();
-    
           reader.onload = function(event) {
             imagePreview.innerHTML = `<img src="${event.target.result}" alt="Uploaded CT Scan" class="uploaded-image">`;
-            analyzeBtn.disabled = false; // Enable analyze button after upload
           };
-    
           reader.readAsDataURL(file);
+
+          // Upload to db
+          try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/g17-capstone-BrainViewAI/upload-image.php', {
+              method: 'POST',
+              body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              analyzeBtn.disabled = false;
+              alert('Upload successful!');
+            } else {
+              alert('Upload failed: ' + (result.error || 'Unknown error'));
+            }
+          } catch (error) {
+            console.error('Upload error:', error);
+            alert('Upload failed. Please try again.');
+          } finally {
+            // Reset button state
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = "Upload CT Scan";
+          }
         }
       });
 
@@ -162,8 +201,23 @@
   /* Styling for image preview */
   .uploaded-image {
     max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+  }
+
+  .image-placeholder {
+    width: 100%;
     height: 300px;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-top: 20px;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   /* Flexbox layout for analyzing animation */
