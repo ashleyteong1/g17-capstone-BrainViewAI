@@ -28,41 +28,30 @@ h1 {
   margin-bottom: 50px;
 }
 
-table {
+.patient-table table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-th, td {
+.patient-table th,
+.patient-table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  background-color: #f0f8ff; /* Light blue background */
 }
 
-th {
-  background-color: #f0f4ff;
-  color: #555;
-  font-size: 14px;
+.patient-table th {
+  background-color: #e6f3ff; /* Slightly darker blue for header */
+  font-weight: bold;
 }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9;
+.patient-table .action-buttons {
+  display: flex;
+  gap: 8px;
 }
 
-tr:hover {
-  background-color: #f0f4ff;
-}
-
-td button {
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  border: none;
-  cursor: pointer;
+.patient-table tr:hover td {
+  background-color: #e6f3ff;
 }
 
 /* Button Styles */
