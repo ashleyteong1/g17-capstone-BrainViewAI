@@ -72,4 +72,5 @@ try {
 } finally {
     $db->closeConnection();
 }
+
 ?> 
